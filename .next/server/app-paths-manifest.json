@@ -3,6 +3,5 @@
   "/families/page": "app/families/page.js",
   "/members/page": "app/members/page.js",
   "/submissions/page": "app/submissions/page.js",
-  "/settings/page": "app/settings/page.js",
-  "/audit-logs/page": "app/audit-logs/page.js"
+  "/settings/page": "app/settings/page.js"
 }
