@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Sidebar from "@/components/Sidebar";
 import Topbar from "@/components/Topbar";
+import { AuthProvider } from "@/components/AuthProvider";
+import { RouteGuard } from "@/components/RouteGuard";
 
 export const metadata: Metadata = {
   title: "Family Data Collection Portal",
@@ -24,13 +26,17 @@ export default function RootLayout({
         />
       </head>
       <body>
-        <div className="app-shell">
-          <Sidebar />
-          <div className="main-area">
-            <Topbar />
-            <main className="content">{children}</main>
-          </div>
-        </div>
+        <AuthProvider>
+          <RouteGuard>
+            <div className="app-shell">
+              <Sidebar />
+              <div className="main-area">
+                <Topbar />
+                <main className="content">{children}</main>
+              </div>
+            </div>
+          </RouteGuard>
+        </AuthProvider>
       </body>
     </html>
   );

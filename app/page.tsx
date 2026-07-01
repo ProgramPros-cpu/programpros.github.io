@@ -1,49 +1,77 @@
-import { Users, UserCog, FileText, TrendingUp, TrendingDown, MoveHorizontal as MoreHorizontal, Plus, Download } from "lucide-react";
+"use client";
+
+import { useEffect, useState } from "react";
+import {
+  Users, UserCog, FileText, TrendingUp, TrendingDown,
+  MoreHorizontal, Download, Inbox,
+} from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
+import { logActivity } from "@/lib/queries";
+import type { Family, ActivityLog, Location } from "@/lib/types";
 
-const stats = [
-  { label: "Total Families", value: "2,847", trend: "+12.5%", up: true, icon: Users, color: "#4f46e5", bg: "#eef2ff" },
-  { label: "Total Members", value: "11,392", trend: "+8.2%", up: true, icon: UserCog, color: "#0891b2", bg: "#ecfeff" },
-  { label: "Active Forms", value: "24", trend: "+4", up: true, icon: FileText, color: "#d97706", bg: "#fffbeb" },
-  { label: "Pending Reviews", value: "156", trend: "-3.1%", up: false, icon: TrendingDown, color: "#dc2626", bg: "#fef2f2" },
-];
-
-const barData = [
-  { label: "Jan", value: 45 },
-  { label: "Feb", value: 62 },
-  { label: "Mar", value: 58 },
-  { label: "Apr", value: 71 },
-  { label: "May", value: 84 },
-  { label: "Jun", value: 78 },
-  { label: "Jul", value: 92 },
-  { label: "Aug", value: 88 },
-  { label: "Sep", value: 96 },
-];
-
-const recentFamilies = [
-  { id: "FAM-2847", head: "Rajesh Sharma", location: "Asansol, WB", members: 5, status: "Complete", pill: "green" },
-  { id: "FAM-2846", head: "Priya Verma", location: "Durgapur, WB", members: 4, status: "Pending", pill: "amber" },
-  { id: "FAM-2845", head: "Amit Singh", location: "Kolkata, WB", members: 6, status: "Complete", pill: "green" },
-  { id: "FAM-2844", head: "Sunita Rao", location: "Howrah, WB", members: 3, status: "Review", pill: "blue" },
-  { id: "FAM-2843", head: "Mohan Das", location: "Siliguri, WB", members: 7, status: "Incomplete", pill: "red" },
-];
-
-const activities = [
-  { who: "Field Worker J. Roy", what: "submitted form for FAM-2847", time: "2 min ago", color: "#dcfce7", icon: "✓" },
-  { who: "Admin Kumar", what: "approved 12 family records", time: "18 min ago", color: "#dbeafe", icon: "✓" },
-  { who: "System", what: "auto-flagged 3 incomplete entries", time: "1 hr ago", color: "#fef3c7", icon: "!" },
-  { who: "Field Worker S. Ghosh", what: "added 4 new members", time: "3 hrs ago", color: "#eef2ff", icon: "+" },
-  { who: "Admin Kumar", what: "updated survey form 'Health 2025'", time: "5 hrs ago", color: "#f1f5f9", icon: "✎" },
-];
-
-const pillClass = (p: string) => `pill ${p}`;
+const statusPill: Record<string, string> = {
+  complete: "green", verified: "green",
+  pending: "amber",
+  review: "blue",
+  incomplete: "red", rejected: "red",
+};
 
 export default function DashboardPage() {
+  const [stats, setStats] = useState({ totalFamilies: 0, totalMembers: 0, activeForms: 0, pendingReviews: 0 });
+  const [families, setFamilies] = useState<(Family & { locations: Location | null })[]>([]);
+  const [activity, setActivity] = useState<ActivityLog[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    (async () => {
+      const [fam, mem, forms, pend] = await Promise.all([
+        supabase.from("families").select("*", { count: "exact", head: true }),
+        supabase.from("members").select("*", { count: "exact", head: true }),
+        supabase.from("forms").select("*", { count: "exact", head: true }).eq("status", "active"),
+        supabase.from("submissions").select("*", { count: "exact", head: true }).eq("status", "pending"),
+      ]);
+      setStats({
+        totalFamilies: fam.count ?? 0,
+        totalMembers: mem.count ?? 0,
+        activeForms: forms.count ?? 0,
+        pendingReviews: pend.count ?? 0,
+      });
+
+      const { data: recentFams } = await supabase
+        .from("families")
+        .select("*, locations(*)")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setFamilies((recentFams ?? []) as (Family & { locations: Location | null })[]);
+
+      const { data: acts } = await supabase
+        .from("activity_log")
+        .select("*")
+        .order("created_at", { ascending: false })
+        .limit(5);
+      setActivity((acts ?? []) as ActivityLog[]);
+
+      setLoading(false);
+    })();
+  }, []);
+
+  const statCards = [
+    { label: "Total Families", value: stats.totalFamilies, trend: "+12.5%", up: true, icon: Users, color: "#4f46e5", bg: "#eef2ff" },
+    { label: "Total Members", value: stats.totalMembers, trend: "+8.2%", up: true, icon: UserCog, color: "#0891b2", bg: "#ecfeff" },
+    { label: "Active Forms", value: stats.activeForms, trend: "+4", up: true, icon: FileText, color: "#d97706", bg: "#fffbeb" },
+    { label: "Pending Reviews", value: stats.pendingReviews, trend: "-3.1%", up: false, icon: Inbox, color: "#dc2626", bg: "#fef2f2" },
+  ];
+
+  const barData = [45, 62, 58, 71, 84, 78, 92, 88, 96];
+  const barLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep"];
+
+  if (loading) return <div style={{ color: "var(--muted)" }}>Loading dashboard...</div>;
+
   return (
     <div className="page-grid">
-      {/* Stat cards */}
       <div className="stat-grid">
-        {stats.map((s) => {
+        {statCards.map((s) => {
           const Icon = s.icon;
           return (
             <div key={s.label} className="stat-card">
@@ -57,7 +85,7 @@ export default function DashboardPage() {
                 </span>
               </div>
               <div>
-                <div className="stat-value">{s.value}</div>
+                <div className="stat-value">{s.value.toLocaleString()}</div>
                 <div className="stat-label">{s.label}</div>
               </div>
             </div>
@@ -65,7 +93,6 @@ export default function DashboardPage() {
         })}
       </div>
 
-      {/* Charts row */}
       <div className="grid-2">
         <div className="card">
           <div className="card-header">
@@ -73,15 +100,13 @@ export default function DashboardPage() {
               <h2>Collection Overview</h2>
               <p>Monthly family data submissions</p>
             </div>
-            <button className="btn btn-ghost btn-sm">
-              <Download size={14} /> Export
-            </button>
+            <button className="btn btn-ghost btn-sm"><Download size={14} /> Export</button>
           </div>
           <div className="bar-chart">
-            {barData.map((b) => (
-              <div key={b.label} className="bar-col">
-                <div className="bar" style={{ height: `${b.value}%` }} />
-                <div className="bar-label">{b.label}</div>
+            {barData.map((v, i) => (
+              <div key={i} className="bar-col">
+                <div className="bar" style={{ height: `${v}%` }} />
+                <div className="bar-label">{barLabels[i]}</div>
               </div>
             ))}
           </div>
@@ -106,7 +131,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Recent families + activity */}
       <div className="grid-2">
         <div className="card">
           <div className="card-header">
@@ -114,9 +138,7 @@ export default function DashboardPage() {
               <h2>Recently Added Families</h2>
               <p>Latest records from field workers</p>
             </div>
-            <Link href="/families" className="btn btn-ghost btn-sm">
-              View all
-            </Link>
+            <Link href="/families" className="btn btn-ghost btn-sm">View all</Link>
           </div>
           <div className="table-wrap">
             <table className="data-table">
@@ -130,15 +152,15 @@ export default function DashboardPage() {
                 </tr>
               </thead>
               <tbody>
-                {recentFamilies.map((f) => (
+                {families.map((f) => (
                   <tr key={f.id}>
-                    <td className="cell-strong">{f.id}</td>
-                    <td>{f.head}</td>
-                    <td className="cell-muted">{f.location}</td>
-                    <td>{f.members}</td>
+                    <td className="cell-strong">{f.family_code}</td>
+                    <td>{f.head_of_family}</td>
+                    <td className="cell-muted">{f.locations?.name ?? "—"}</td>
+                    <td>{f.member_count}</td>
                     <td>
-                      <span className={pillClass(f.pill)}>
-                        <span className="dot" /> {f.status}
+                      <span className={`pill ${statusPill[f.status] ?? "gray"}`}>
+                        <span className="dot" /> {f.status.charAt(0).toUpperCase() + f.status.slice(1)}
                       </span>
                     </td>
                   </tr>
@@ -156,14 +178,16 @@ export default function DashboardPage() {
             </div>
           </div>
           <div className="activity-list">
-            {activities.map((a, i) => (
-              <div key={i} className="activity-item">
-                <div className="act-dot" style={{ background: a.color }}>
-                  {a.icon}
+            {activity.map((a) => (
+              <div key={a.id} className="activity-item">
+                <div className="act-dot" style={{ background: a.color ?? "#eef2ff" }}>
+                  {a.icon ?? "✓"}
                 </div>
                 <div className="act-body">
-                  <strong>{a.who}</strong> {a.what}
-                  <div className="act-time">{a.time}</div>
+                  <strong>{a.actor}</strong> {a.action}
+                  <div className="act-time">
+                    {new Date(a.created_at).toLocaleString("en-IN", { dateStyle: "short", timeStyle: "short" })}
+                  </div>
                 </div>
               </div>
             ))}
