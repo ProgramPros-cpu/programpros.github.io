@@ -1,7 +1,0 @@
-{
-  "/page": "app/page.js",
-  "/forms/page": "app/forms/page.js",
-  "/data-collection/page": "app/data-collection/page.js",
-  "/categories/page": "app/categories/page.js",
-  "/settings/page": "app/settings/page.js"
-}
