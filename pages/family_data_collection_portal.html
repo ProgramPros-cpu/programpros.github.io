@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Data Collection Portal - Dashboard</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            --sidebar-bg: #081C4D;
+            --sidebar-hover: rgba(255, 255, 255, 0.05);
+            --bg-color: #F7F9FC;
+            --surface-color: #FFFFFF;
+            
+            --primary: #3B82F6;
+            --primary-light: #EBF3FF;
+            --success: #22C55E;
+            --success-light: #DCFCE7;
+            --warning: #F59E0B;
+            --warning-light: #FEF3C7;
+            --danger: #EF4444;
+            --danger-light: #FEE2E2;
+            --purple: #8B5CF6;
+            --purple-light: #EDE9FE;
+            --teal: #14B8A6;
+            --teal-light: #E0F2FE;
+            
+            --text-primary: #1E293B;
+            --text-secondary: #64748B;
+            --text-tertiary: #94A3B8;
+            --border-color: #E5E7EB;
+            
+            --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+            
+            --radius-sm: 8px;
+            --radius-md: 12px;
+            --radius-lg: 18px;
+            --radius-full: 9999px;
+            
+            --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+            --shadow-card: 0 8px 30px rgba(15, 23, 42, 0.04);
+            --shadow-hover: 0 12px 40px rgba(15, 23, 42, 0.08);
+            
+            --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            
+            --sidebar-width: 270px;
+            --topbar-height: 80px;
+        }
+
+        /* Reset & Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: var(--font-main);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+        a { text-decoration: none; color: inherit; }
+        ul { list-style: none; }
+        button, input, select { font-family: inherit; border: none; outline: none; background: none; }
+        button { cursor: pointer; }
+
+        /* Typography Utilities */
+        .text-xs { font-size: 0.75rem; } .text-sm { font-size: 0.875rem; }
+        .text-base { font-size: 1rem; } .text-lg { font-size: 1.125rem; }
+        .text-xl { font-size: 1.25rem; } .text-2xl { font-size: 1.5rem; }
+        .font-normal { font-weight: 400; } .font-medium { font-weight: 500; }
+        .font-semibold { font-weight: 600; } .font-bold { font-weight: 700; }
+        .text-primary { color: var(--text-primary); }
+        .text-secondary { color: var(--text-secondary); }
+        .text-tertiary { color: var(--text-tertiary); }
+
+        /* Layout Structure */
+        .app-container { display: flex; min-height: 100vh; }
+
+        /* Sidebar */
+        .sidebar {
+            width: var(--sidebar-width); background-color: var(--sidebar-bg); color: white;
+            position: fixed; top: 0; bottom: 0; left: 0; display: flex; flex-direction: column;
+            z-index: 50; transition: var(--transition); overflow-y: auto;
+        }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+
+        .logo-container {
+            padding: 24px; display: flex; align-items: center; gap: 12px;
+            position: sticky; top: 0; background: var(--sidebar-bg); z-index: 10;
+        }
+        .logo-icon {
+            width: 36px; height: 36px; background: linear-gradient(135deg, #60A5FA, #2563EB);
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative;
+        }
+        .logo-icon::after {
+            content: ''; position: absolute; width: 24px; height: 24px;
+            background: rgba(255,255,255,0.3); border-radius: 50%; left: -4px; top: 6px;
+        }
+        .logo-text { font-weight: 700; font-size: 1.1rem; line-height: 1.2; letter-spacing: -0.01em; }
+
+        .nav-groups { padding: 0 16px; flex: 1; display: flex; flex-direction: column; gap: 24px; margin-top: 10px; margin-bottom: 24px; }
+        .nav-group-title {
+            font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.05em;
+            color: rgba(255,255,255,0.4); font-weight: 600; margin-bottom: 8px; padding-left: 12px;
+        }
+        .nav-list { display: flex; flex-direction: column; gap: 4px; }
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+            border-radius: var(--radius-md); color: rgba(255,255,255,0.7);
+            font-size: 0.9rem; font-weight: 500; transition: var(--transition);
+        }
+        .nav-item:hover { background-color: var(--sidebar-hover); color: white; }
+        .nav-item.active { background-color: var(--primary); color: white; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .nav-item svg { width: 18px; height: 18px; stroke-width: 2px; }
+
+        .promo-card {
+            margin: 0 16px 20px; background: linear-gradient(145deg, #1e1b4b, #312e81, #1e3a8a);
+            border-radius: var(--radius-lg); padding: 20px; position: relative; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        .promo-card h4 { font-size: 0.95rem; font-weight: 600; margin-bottom: 8px; }
+        .promo-card p { font-size: 0.75rem; color: rgba(255,255,255,0.7); margin-bottom: 16px; line-height: 1.4; }
+        .btn-promo {
+            display: inline-block; padding: 8px 16px; border: 1px solid rgba(255,255,255,0.3);
+            border-radius: var(--radius-sm); font-size: 0.8rem; font-weight: 500;
+            color: white; transition: var(--transition); width: 100%; text-align: center;
+        }
+        .btn-promo:hover { background: rgba(255,255,255,0.1); }
+        .sidebar-footer { padding: 16px 24px; text-align: center; font-size: 0.7rem; color: rgba(255,255,255,0.4); border-top: 1px solid rgba(255,255,255,0.05); }
+
+        /* Main Content Area */
+        .main-wrapper { flex: 1; margin-left: var(--sidebar-width); display: flex; flex-direction: column; min-height: 100vh; }
+
+        /* Topbar */
+        .topbar {
+            height: var(--topbar-height); background-color: var(--surface-color);
+            border-bottom: 1px solid var(--border-color); display: flex; align-items: center;
+            justify-content: space-between; padding: 0 32px; position: sticky; top: 0; z-index: 40;
+        }
+        .search-bar {
+            display: flex; align-items: center; background-color: var(--bg-color);
+            border-radius: var(--radius-md); padding: 8px 16px; width: 400px;
+            border: 1px solid transparent; transition: var(--transition);
+        }
+        .search-bar:focus-within { background-color: white; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+        .search-bar svg { color: var(--text-tertiary); width: 18px; height: 18px; }
+        .search-bar input { flex: 1; padding: 4px 12px; font-size: 0.9rem; color: var(--text-primary); }
+        .search-shortcut { background-color: var(--surface-color); border: 1px solid var(--border-color); border-radius: 4px; padding: 2px 6px; font-size: 0.7rem; color: var(--text-secondary); font-weight: 500; }
+
+        .topbar-right { display: flex; align-items: center; gap: 24px; }
+        .icon-btn { position: relative; color: var(--text-secondary); transition: var(--transition); display: flex; align-items: center; justify-content: center; width: 40px; height: 40px; border-radius: 50%; }
+        .icon-btn:hover { background-color: var(--bg-color); color: var(--text-primary); }
+        .badge { position: absolute; top: 6px; right: 8px; width: 16px; height: 16px; background-color: var(--danger); color: white; font-size: 0.6rem; font-weight: bold; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--surface-color); }
+        .user-profile { display: flex; align-items: center; gap: 12px; cursor: pointer; padding-left: 16px; border-left: 1px solid var(--border-color); }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid var(--border-color); }
+        .user-info { display: flex; flex-direction: column; }
+        .user-name { font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+        .user-role { font-size: 0.75rem; color: var(--text-secondary); }
+
+        /* View Management */
+        .content-area { padding: 32px; display: flex; flex-direction: column; gap: 24px; max-width: 1600px; margin: 0 auto; width: 100%; }
+        .page-view { display: none; animation: fadeUp 0.4s ease-out forwards; }
+        .page-view.active { display: block; }
+        
+        .page-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 8px; }
+        .page-header-left { display: flex; flex-direction: column; gap: 4px; }
+        .welcome-title { font-size: 1.8rem; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .welcome-subtitle { color: var(--text-secondary); font-size: 0.95rem; }
+
+        .btn-primary { background-color: var(--primary); color: white; padding: 10px 20px; border-radius: var(--radius-md); font-weight: 600; font-size: 0.9rem; transition: var(--transition); border: none; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary:hover { background-color: #2563EB; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .btn-secondary { background-color: var(--surface-color); border: 1px solid var(--border-color); color: var(--text-primary); padding: 10px 20px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.9rem; transition: var(--transition); display: inline-flex; align-items: center; gap: 8px; }
+        .btn-secondary:hover { background-color: var(--bg-color); border-color: #cbd5e1; }
+
+        /* Generic Cards */
+        .card { background: var(--surface-color); border-radius: var(--radius-lg); border: 1px solid rgba(0,0,0,0.03); box-shadow: var(--shadow-card); padding: 24px; transition: var(--transition); position: relative; }
+        .card:hover { box-shadow: var(--shadow-hover); transform: translateY(-2px); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .card-title { font-size: 1.05rem; font-weight: 600; color: var(--text-primary); }
+
+        /* Status Badges */
+        .status-badge { padding: 4px 10px; border-radius: var(--radius-full); font-size: 0.75rem; font-weight: 600; }
+        .badge-success { background-color: var(--success-light); color: #166534; }
+        .badge-warning { background-color: var(--warning-light); color: #92400E; }
+        .badge-danger { background-color: var(--danger-light); color: #991B1B; }
+        .badge-info { background-color: var(--primary-light); color: #1E40AF; }
+        .badge-gray { background-color: #F1F5F9; color: #475569; }
+
+        /* Table Styles */
+        .table-container { width: 100%; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .data-table th { padding: 16px; font-size: 0.8rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 1px solid var(--border-color); background: #F8FAFC; }
+        .data-table th:first-child { border-top-left-radius: var(--radius-md); }
+        .data-table th:last-child { border-top-right-radius: var(--radius-md); }
+        .data-table td { padding: 16px; font-size: 0.9rem; color: var(--text-primary); border-bottom: 1px solid var(--border-color); vertical-align: middle; }
+        .data-table tbody tr { transition: var(--transition); }
+        .data-table tbody tr:hover { background-color: var(--bg-color); }
+        .table-user-info { display: flex; align-items: center; gap: 12px; }
+        .table-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
+        .action-btns { display: flex; gap: 8px; }
+        .action-btn-sm { padding: 6px; border-radius: var(--radius-sm); color: var(--text-secondary); transition: var(--transition); }
+        .action-btn-sm:hover { background: var(--bg-color); color: var(--primary); }
+
+        /* Grid Layouts */
+        .grid-4-col { display: grid; grid-template-columns: repeat(4, 1fr); gap: 24px; }
+        .grid-3-col { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+        .grid-2-col { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+
+        /* Settings Layout */
+        .settings-container { display: flex; gap: 32px; background: var(--surface-color); border-radius: var(--radius-lg); padding: 32px; box-shadow: var(--shadow-card); border: 1px solid rgba(0,0,0,0.03); }
+        .settings-sidebar { width: 250px; display: flex; flex-direction: column; gap: 8px; flex-shrink: 0; border-right: 1px solid var(--border-color); padding-right: 24px; }
+        .settings-tab { padding: 12px 16px; border-radius: var(--radius-md); font-weight: 500; font-size: 0.9rem; color: var(--text-secondary); cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 12px; }
+        .settings-tab:hover { background: var(--bg-color); color: var(--text-primary); }
+        .settings-tab.active { background: var(--primary-light); color: var(--primary); font-weight: 600; }
+        .settings-content { flex: 1; max-width: 800px; }
+        
+        .form-group { margin-bottom: 24px; }
+        .form-label { display: block; font-size: 0.85rem; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+        .form-input { width: 100%; padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border-color); font-size: 0.95rem; transition: var(--transition); background: var(--surface-color); }
+        .form-input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); outline: none; }
+        .form-hint { font-size: 0.75rem; color: var(--text-tertiary); margin-top: 6px; }
+
+        /* Premium Empty State */
+        .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 80px 20px; text-align: center; }
+        .empty-icon-wrapper { width: 80px; height: 80px; border-radius: 50%; background: var(--primary-light); color: var(--primary); display: flex; align-items: center; justify-content: center; margin-bottom: 24px; }
+        .empty-icon-wrapper svg { width: 40px; height: 40px; stroke-width: 1.5; }
+        .empty-title { font-size: 1.5rem; font-weight: 700; color: var(--text-primary); margin-bottom: 12px; }
+        .empty-desc { color: var(--text-secondary); font-size: 1rem; max-width: 400px; margin-bottom: 32px; line-height: 1.6; }
+
+        /* Dashboard specific charts/stats overrides */
+        .stats-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; }
+        .stat-card { display: flex; flex-direction: column; padding: 20px; }
+        .stat-icon-wrapper { width: 48px; height: 48px; border-radius: var(--radius-md); display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; letter-spacing: -0.02em; }
+        
+        /* Helpers */
+        .bg-blue-light { background-color: var(--primary-light); color: var(--primary); }
+        .bg-green-light { background-color: var(--success-light); color: var(--success); }
+        .bg-purple-light { background-color: var(--purple-light); color: var(--purple); }
+        .bg-orange-light { background-color: var(--warning-light); color: var(--warning); }
+        .bg-teal-light { background-color: var(--teal-light); color: var(--teal); }
+        
+        /* Animations */
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        .delay-1 { animation-delay: 0.1s; } .delay-2 { animation-delay: 0.2s; }
+        .delay-3 { animation-delay: 0.3s; } .delay-4 { animation-delay: 0.4s; }
+
+        @media (max-width: 1400px) {
+            .stats-grid { grid-template-columns: repeat(3, 1fr); }
+            .grid-4-col { grid-template-columns: repeat(2, 1fr); }
+            .grid-3-col { grid-template-columns: repeat(2, 1fr); }
+            .grid-2-col { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 1024px) {
+            :root { --sidebar-width: 80px; }
+            .logo-text, .nav-group-title, .nav-item span, .promo-card { display: none; }
+            .nav-item { justify-content: center; padding: 12px; }
+            .settings-container { flex-direction: column; }
+            .settings-sidebar { width: 100%; border-right: none; border-bottom: 1px solid var(--border-color); flex-direction: row; overflow-x: auto; padding-bottom: 16px; }
+        }
+        @media (max-width: 768px) {
+            :root { --sidebar-width: 0px; }
+            .sidebar { transform: translateX(-100%); width: 250px; }
+            .sidebar.open { transform: translateX(0); }
+            .sidebar .logo-text, .sidebar .nav-group-title, .sidebar .nav-item span, .sidebar .promo-card { display: block; }
+            .mobile-menu-btn { display: block; }
+            .search-bar { display: none; }
+            .stats-grid, .grid-4-col, .grid-3-col, .grid-2-col { grid-template-columns: 1fr; }
+            .page-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+        }
+        .mobile-menu-btn { display: none; cursor: pointer; color: var(--text-primary); margin-right: 16px; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <aside class="sidebar" id="sidebar">
+        <div class="logo-container">
+            <div class="logo-icon"><i data-lucide="users" style="color: white; width: 20px; height: 20px; position: relative; z-index: 2;"></i></div>
+            <div class="logo-text">Family Data<br>Collection Portal</div>
+        </div>
+
+        <div class="nav-groups">
+            <div class="nav-group">
+                <div class="nav-group-title">Main</div>
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-item active" data-target="view-dashboard"><i data-lucide="layout-dashboard"></i> <span>Dashboard</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-families"><i data-lucide="users"></i> <span>Families</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-members"><i data-lucide="user"></i> <span>Members</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-data-collection"><i data-lucide="file-text"></i> <span>Data Collection</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-forms"><i data-lucide="clipboard-list"></i> <span>Forms & Surveys</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-submissions"><i data-lucide="inbox"></i> <span>Submissions</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-reports"><i data-lucide="bar-chart-2"></i> <span>Reports & Analytics</span></a></li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-title">Management</div>
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-item" data-target="view-users"><i data-lucide="users-2"></i> <span>Users & Roles</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-locations"><i data-lucide="map-pin"></i> <span>Locations</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-programs"><i data-lucide="briefcase"></i> <span>Programs & Services</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-categories"><i data-lucide="grid"></i> <span>Categories</span></a></li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-title">Communication</div>
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-item" data-target="view-announcements"><i data-lucide="megaphone"></i> <span>Announcements</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-notifications"><i data-lucide="bell"></i> <span>Notifications</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-messages"><i data-lucide="message-square"></i> <span>Messages</span></a></li>
+                </ul>
+            </div>
+            <div class="nav-group">
+                <div class="nav-group-title">Configuration</div>
+                <ul class="nav-list">
+                    <li><a href="#" class="nav-item" data-target="view-settings"><i data-lucide="settings"></i> <span>Settings</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-custom-fields"><i data-lucide="sliders-horizontal"></i> <span>Custom Fields</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-workflows"><i data-lucide="git-merge"></i> <span>Workflows</span></a></li>
+                    <li><a href="#" class="nav-item" data-target="view-audit-logs"><i data-lucide="file-clock"></i> <span>Audit Logs</span></a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="promo-card">
+            <h4>Empowering Communities</h4>
+            <p>Collect, manage & analyze family data to build better communities.</p>
+            <a href="#" class="btn-promo">Learn More</a>
+        </div>
+        
+        <div class="sidebar-footer">© 2025 Family Data Portal<br>All rights reserved.</div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="main-wrapper">
+        <header class="topbar">
+            <div style="display: flex; align-items: center;">
+                <i data-lucide="menu" class="mobile-menu-btn" id="mobileMenuBtn"></i>
+                <div class="search-bar">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search families, members, records...">
+                    <span class="search-shortcut">Ctrl + K</span>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <button class="icon-btn"><i data-lucide="bell"></i></button>
+                <button class="icon-btn"><i data-lucide="mail"></i><span class="badge">5</span></button>
+                <div class="user-profile">
+                    <img src="https://ui-avatars.com/api/?name=Admin+User&background=F3F4F6&color=1E293B&bold=true" alt="Admin" class="avatar">
+                    <div class="user-info">
+                        <span class="user-name">Admin User</span>
+                        <span class="user-role">Super Admin <i data-lucide="chevron-down" style="width:12px;height:12px;display:inline-block;vertical-align:middle;"></i></span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-area">
+            
+            <div id="view-dashboard" class="page-view active">
+                <div class="page-header animate-fade-up">
+                    <div class="page-header-left">
+                        <h1 class="welcome-title">Welcome back, Admin! <span style="font-size: 1.5rem;">👋</span></h1>
+                        <p class="welcome-subtitle">Here's what's happening with your community data today.</p>
+                    </div>
+                    <button class="btn-secondary">
+                        <i data-lucide="calendar" style="width: 16px;"></i> May 26, 2025 <i data-lucide="chevron-down" style="width: 16px;"></i>
+                    </button>
+                </div>
+
+                <div class="stats-grid animate-fade-up delay-1" style="margin-bottom: 24px;">
+                    <div class="card stat-card"><div class="stat-icon-wrapper bg-blue-light"><i data-lucide="users"></i></div><div class="stat-title">Total Families</div><div class="stat-value counter" data-target="1248">0</div><div class="stat-trend"><span class="trend-up"><i data-lucide="arrow-up-right"></i> 12.5%</span> <span class="trend-text">from last month</span></div></div>
+                    <div class="card stat-card"><div class="stat-icon-wrapper bg-green-light"><i data-lucide="users-2"></i></div><div class="stat-title">Total Members</div><div class="stat-value counter" data-target="4327">0</div><div class="stat-trend"><span class="trend-up"><i data-lucide="arrow-up-right"></i> 8.3%</span> <span class="trend-text">from last month</span></div></div>
+                    <div class="card stat-card"><div class="stat-icon-wrapper bg-purple-light"><i data-lucide="inbox"></i></div><div class="stat-title">Submissions</div><div class="stat-value counter" data-target="2156">0</div><div class="stat-trend"><span class="trend-up"><i data-lucide="arrow-up-right"></i> 15.7%</span> <span class="trend-text">from last month</span></div></div>
+                    <div class="card stat-card"><div class="stat-icon-wrapper bg-orange-light"><i data-lucide="clock"></i></div><div class="stat-title">Pending Reviews</div><div class="stat-value counter" data-target="128">0</div><div class="stat-trend"><span class="trend-down"><i data-lucide="arrow-down-right"></i> 5.2%</span> <span class="trend-text">from last month</span></div></div>
+                    <div class="card stat-card"><div class="stat-icon-wrapper bg-teal-light"><i data-lucide="layout-grid"></i></div><div class="stat-title">Programs</div><div class="stat-value counter" data-target="18">0</div><div class="stat-trend"><span class="trend-up"><i data-lucide="arrow-up"></i> 2</span> <span class="trend-text">new this month</span></div></div>
+                </div>
+
+                <div class="grid-2-col animate-fade-up delay-2" style="margin-bottom: 24px;">
+                    <div class="card" style="min-height: 380px; display: flex; flex-direction: column;">
+                        <div class="card-header">
+                            <div style="display: flex; gap: 16px; align-items: center;">
+                                <span class="card-title">Data Overview</span>
+                                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary);"></div> Families</div>
+                                <div style="display: flex; align-items: center; gap: 6px; font-size: 0.85rem; color: var(--text-secondary); font-weight: 500;"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success);"></div> Members</div>
+                            </div>
+                            <button class="btn-secondary" style="padding: 4px 12px; font-size: 0.8rem;">Last 6 Months <i data-lucide="chevron-down" style="width: 14px;"></i></button>
+                        </div>
+                        <div style="flex: 1; width: 100%; position: relative;">
+                            <!-- Reused Custom Line Chart -->
+                            <svg viewBox="0 0 800 300" width="100%" height="100%" preserveAspectRatio="none">
+                                <defs>
+                                    <linearGradient id="gradBlue" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="rgba(59, 130, 246, 0.2)" /><stop offset="100%" stop-color="rgba(59, 130, 246, 0)" /></linearGradient>
+                                    <linearGradient id="gradGreen" x1="0%" y1="0%" x2="0%" y2="100%"><stop offset="0%" stop-color="rgba(34, 197, 94, 0.2)" /><stop offset="100%" stop-color="rgba(34, 197, 94, 0)" /></linearGradient>
+                                </defs>
+                                <g stroke="#f1f5f9" stroke-width="1">
+                                    <line x1="50" y1="20" x2="780" y2="20" /><line x1="50" y1="70" x2="780" y2="70" /><line x1="50" y1="120" x2="780" y2="120" /><line x1="50" y1="170" x2="780" y2="170" /><line x1="50" y1="220" x2="780" y2="220" /><line x1="50" y1="270" x2="780" y2="270" />
+                                </g>
+                                <g fill="#94a3b8" font-size="12" font-family="Inter" text-anchor="end">
+                                    <text x="40" y="25">1.5K</text><text x="40" y="75">1.25K</text><text x="40" y="125">1K</text><text x="40" y="175">750</text><text x="40" y="225">500</text><text x="40" y="275">250</text><text x="40" y="295" dominant-baseline="hanging">0</text>
+                                </g>
+                                <g fill="#94a3b8" font-size="12" font-family="Inter" text-anchor="middle">
+                                    <text x="80" y="290">Dec 2024</text><text x="220" y="290">Jan 2025</text><text x="360" y="290">Feb 2025</text><text x="500" y="290">Mar 2025</text><text x="640" y="290">Apr 2025</text><text x="760" y="290">May 2025</text>
+                                </g>
+                                <path d="M 80,170 C 150,150 180,120 220,110 C 290,90 320,85 360,80 C 430,70 460,50 500,40 C 570,25 600,20 640,15 C 700,5 730,5 760,0 L 760,270 L 80,270 Z" fill="url(#gradBlue)" />
+                                <path d="M 80,240 C 150,220 180,200 220,190 C 290,170 320,150 360,140 C 430,120 460,110 500,100 C 570,80 600,70 640,60 C 700,40 730,30 760,20 L 760,270 L 80,270 Z" fill="url(#gradGreen)" />
+                                <path d="M 80,170 C 150,150 180,120 220,110 C 290,90 320,85 360,80 C 430,70 460,50 500,40 C 570,25 600,20 640,15 C 700,5 730,5 760,0" fill="none" stroke="#3B82F6" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                <path d="M 80,240 C 150,220 180,200 220,190 C 290,170 320,150 360,140 C 430,120 460,110 500,100 C 570,80 600,70 640,60 C 700,40 730,30 760,20" fill="none" stroke="#22C55E" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                                <g fill="white" stroke-width="2">
+                                    <circle cx="80" cy="170" r="4" stroke="#3B82F6" /><circle cx="220" cy="110" r="4" stroke="#3B82F6" /><circle cx="360" cy="80" r="4" stroke="#3B82F6" /><circle cx="500" cy="40" r="4" stroke="#3B82F6" /><circle cx="640" cy="15" r="4" stroke="#3B82F6" /><circle cx="760" cy="0" r="4" stroke="#3B82F6" />
+                                    <circle cx="80" cy="240" r="4" stroke="#22C55E" /><circle cx="220" cy="190" r="4" stroke="#22C55E" /><circle cx="360" cy="140" r="4" stroke="#22C55E" /><circle cx="500" cy="100" r="4" stroke="#22C55E" /><circle cx="640" cy="60" r="4" stroke="#22C55E" /><circle cx="760" cy="20" r="4" stroke="#22C55E" />
+                                </g>
+                            </svg>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header"><span class="card-title">Submission Status</span></div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; align-items: center;">
+                            <div style="height: 250px; display: flex; align-items: center; justify-content: center; position: relative;">
+                                <svg viewBox="0 0 200 200" width="100%" height="100%">
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#f1f5f9" stroke-width="24" />
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#22C55E" stroke-width="24" stroke-dasharray="246.6 439.8" stroke-dashoffset="0" transform="rotate(-90 100 100)" />
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#F59E0B" stroke-width="24" stroke-dasharray="25.0 439.8" stroke-dashoffset="-250.6" transform="rotate(-90 100 100)" />
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#3B82F6" stroke-width="24" stroke-dasharray="67.4 439.8" stroke-dashoffset="-279.6" transform="rotate(-90 100 100)" />
+                                    <circle cx="100" cy="100" r="70" fill="none" stroke="#EF4444" stroke-width="24" stroke-dasharray="84.7 439.8" stroke-dashoffset="-351.0" transform="rotate(-90 100 100)" />
+                                </svg>
+                                <div style="position: absolute; text-align: center; display: flex; flex-direction: column;">
+                                    <span style="font-size: 1.8rem; font-weight: 700; line-height: 1.1;">2,156</span>
+                                    <span style="font-size: 0.85rem; color: var(--text-secondary);">Total</span>
+                                </div>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 12px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-secondary);"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--success);"></div> Approved</div> <div style="font-weight: 600;">1,256 (58.2%)</div></div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-secondary);"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--warning);"></div> Pending</div> <div style="font-weight: 600;">128 (5.9%)</div></div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-secondary);"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--primary);"></div> Under Review</div> <div style="font-weight: 600;">342 (15.9%)</div></div>
+                                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><div style="display: flex; align-items: center; gap: 8px; font-weight: 500; color: var(--text-secondary);"><div style="width: 8px; height: 8px; border-radius: 50%; background-color: var(--danger);"></div> Rejected</div> <div style="font-weight: 600;">430 (20.0%)</div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Quick placeholder grid to represent remainder of dashboard for space efficiency -->
+                <div class="grid-3-col animate-fade-up delay-3" style="margin-bottom: 24px;">
+                    <div class="card"><div class="card-header"><span class="card-title">Top Locations</span></div><div style="color:var(--text-secondary); font-size:0.9rem; text-align:center; padding: 20px;">Detailed metrics active in live view.</div></div>
+                    <div class="card"><div class="card-header"><span class="card-title">Recent Submissions</span></div><div style="color:var(--text-secondary); font-size:0.9rem; text-align:center; padding: 20px;">5 new submissions today.</div></div>
+                    <div class="card"><div class="card-header"><span class="card-title">Program Participation</span></div><div style="color:var(--text-secondary); font-size:0.9rem; text-align:center; padding: 20px;">Health Assistance trending up.</div></div>
+                </div>
+            </div>
+
+            <div id="view-families" class="page-view">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1 class="welcome-title">Families Directory</h1>
+                        <p class="welcome-subtitle">Manage and view all registered families in your network.</p>
+                    </div>
+                    <button class="btn-primary"><i data-lucide="plus" style="width: 18px;"></i> Add New Family</button>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden; margin-top: 24px;">
+                    <div style="padding: 20px 24px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; background: white;">
+                        <div class="search-bar" style="width: 300px; background: white; border: 1px solid var(--border-color);">
+                            <i data-lucide="search"></i>
+                            <input type="text" placeholder="Search by name, ID or location...">
+                        </div>
+                        <div style="display: flex; gap: 12px;">
+                            <button class="btn-secondary" style="padding: 8px 16px;"><i data-lucide="filter" style="width: 16px;"></i> Filters</button>
+                            <button class="btn-secondary" style="padding: 8px 16px;"><i data-lucide="download" style="width: 16px;"></i> Export</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Family ID</th>
+                                    <th>Primary Contact</th>
+                                    <th>Location / District</th>
+                                    <th>Members</th>
+                                    <th>Registration Date</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span style="font-family: monospace; font-weight: 600; color: var(--text-secondary);">#FAM-2091</span></td>
+                                    <td><div class="table-user-info"><div class="table-avatar">SM</div><div><div style="font-weight: 600;">Sarah Miller</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">+1 (555) 123-4567</div></div></div></td>
+                                    <td>North District<br><span style="font-size: 0.75rem; color: var(--text-tertiary);">Sector 4, Ave 2</span></td>
+                                    <td>4</td>
+                                    <td>May 24, 2025</td>
+                                    <td><span class="status-badge badge-success">Active</span></td>
+                                    <td><div class="action-btns"><button class="action-btn-sm"><i data-lucide="eye" style="width: 16px;"></i></button><button class="action-btn-sm"><i data-lucide="edit" style="width: 16px;"></i></button></div></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-family: monospace; font-weight: 600; color: var(--text-secondary);">#FAM-2090</span></td>
+                                    <td><div class="table-user-info"><div class="table-avatar" style="background:#FEF3C7; color:#F59E0B;">RJ</div><div><div style="font-weight: 600;">Robert Johnson</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">+1 (555) 987-6543</div></div></div></td>
+                                    <td>South District<br><span style="font-size: 0.75rem; color: var(--text-tertiary);">Block C, Apt 12</span></td>
+                                    <td>2</td>
+                                    <td>May 22, 2025</td>
+                                    <td><span class="status-badge badge-warning">Pending Review</span></td>
+                                    <td><div class="action-btns"><button class="action-btn-sm"><i data-lucide="eye" style="width: 16px;"></i></button><button class="action-btn-sm"><i data-lucide="edit" style="width: 16px;"></i></button></div></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-family: monospace; font-weight: 600; color: var(--text-secondary);">#FAM-2089</span></td>
+                                    <td><div class="table-user-info"><div class="table-avatar" style="background:#E0F2FE; color:#14B8A6;">EM</div><div><div style="font-weight: 600;">Elena Martinez</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">+1 (555) 456-7890</div></div></div></td>
+                                    <td>East District<br><span style="font-size: 0.75rem; color: var(--text-tertiary);">Pine Valley, Rd 9</span></td>
+                                    <td>6</td>
+                                    <td>May 18, 2025</td>
+                                    <td><span class="status-badge badge-success">Active</span></td>
+                                    <td><div class="action-btns"><button class="action-btn-sm"><i data-lucide="eye" style="width: 16px;"></i></button><button class="action-btn-sm"><i data-lucide="edit" style="width: 16px;"></i></button></div></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-family: monospace; font-weight: 600; color: var(--text-secondary);">#FAM-2088</span></td>
+                                    <td><div class="table-user-info"><div class="table-avatar" style="background:#FEE2E2; color:#EF4444;">DW</div><div><div style="font-weight: 600;">David Williams</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">No phone listed</div></div></div></td>
+                                    <td>Central District<br><span style="font-size: 0.75rem; color: var(--text-tertiary);">Main St, Bldg 4</span></td>
+                                    <td>1</td>
+                                    <td>May 15, 2025</td>
+                                    <td><span class="status-badge badge-gray">Inactive</span></td>
+                                    <td><div class="action-btns"><button class="action-btn-sm"><i data-lucide="eye" style="width: 16px;"></i></button><button class="action-btn-sm"><i data-lucide="edit" style="width: 16px;"></i></button></div></td>
+                                </tr>
+                                <tr>
+                                    <td><span style="font-family: monospace; font-weight: 600; color: var(--text-secondary);">#FAM-2087</span></td>
+                                    <td><div class="table-user-info"><div class="table-avatar" style="background:#EDE9FE; color:#8B5CF6;">AK</div><div><div style="font-weight: 600;">Aisha Khan</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">+1 (555) 333-2222</div></div></div></td>
+                                    <td>West District<br><span style="font-size: 0.75rem; color: var(--text-tertiary);">Sunset Blvd</span></td>
+                                    <td>5</td>
+                                    <td>May 12, 2025</td>
+                                    <td><span class="status-badge badge-success">Active</span></td>
+                                    <td><div class="action-btns"><button class="action-btn-sm"><i data-lucide="eye" style="width: 16px;"></i></button><button class="action-btn-sm"><i data-lucide="edit" style="width: 16px;"></i></button></div></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="padding: 16px 24px; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--border-color); font-size: 0.85rem; color: var(--text-secondary);">
+                        <div>Showing 1 to 5 of 1,248 families</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;" disabled>Previous</button>
+                            <button class="btn-secondary" style="padding: 6px 12px; font-size: 0.8rem;">Next</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-members" class="page-view">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1 class="welcome-title">Community Members</h1>
+                        <p class="welcome-subtitle">Detailed directory of all individuals associated with registered families.</p>
+                    </div>
+                    <button class="btn-primary"><i data-lucide="plus" style="width: 18px;"></i> Add Member</button>
+                </div>
+                
+                <div class="stats-grid" style="margin-top: 24px; margin-bottom: 24px;">
+                    <div class="card stat-card" style="padding: 16px;"><div class="stat-title">Total Children (0-17)</div><div class="stat-value" style="font-size: 1.5rem;">1,256</div></div>
+                    <div class="card stat-card" style="padding: 16px;"><div class="stat-title">Total Adults (18-59)</div><div class="stat-value" style="font-size: 1.5rem;">2,623</div></div>
+                    <div class="card stat-card" style="padding: 16px;"><div class="stat-title">Total Seniors (60+)</div><div class="stat-value" style="font-size: 1.5rem;">448</div></div>
+                </div>
+
+                <div class="card" style="padding: 0; overflow: hidden;">
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Family ID</th>
+                                    <th>Role</th>
+                                    <th>Age</th>
+                                    <th>Gender</th>
+                                    <th>Health Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><div style="font-weight: 600;">Sarah Miller</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">DOB: 12/04/1985</div></td>
+                                    <td><span style="font-family: monospace; color: var(--primary); font-weight: 500;">#FAM-2091</span></td>
+                                    <td>Head of Household</td>
+                                    <td>39</td>
+                                    <td>Female</td>
+                                    <td><span class="status-badge badge-success">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div style="font-weight: 600;">James Miller</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">DOB: 08/22/2012</div></td>
+                                    <td><span style="font-family: monospace; color: var(--primary); font-weight: 500;">#FAM-2091</span></td>
+                                    <td>Dependent (Child)</td>
+                                    <td>12</td>
+                                    <td>Male</td>
+                                    <td><span class="status-badge badge-success">Good</span></td>
+                                </tr>
+                                <tr>
+                                    <td><div style="font-weight: 600;">Robert Johnson</div><div style="font-size: 0.75rem; color: var(--text-tertiary);">DOB: 03/15/1952</div></td>
+                                    <td><span style="font-family: monospace; color: var(--primary); font-weight: 500;">#FAM-2090</span></td>
+                                    <td>Head of Household</td>
+                                    <td>73</td>
+                                    <td>Male</td>
+                                    <td><span class="status-badge badge-warning">Needs Attention</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-forms" class="page-view">
+                <div class="page-header">
+                    <div class="page-header-left">
+                        <h1 class="welcome-title">Forms & Surveys</h1>
+                        <p class="welcome-subtitle">Manage data collection templates and active surveys.</p>
+                    </div>
+                    <button class="btn-primary"><i data-lucide="file-plus" style="width: 18px;"></i> Create Form</button>
+                </div>
+                
+                <div class="grid-4-col" style="margin-top: 24px;">
+                    <!-- Form Card -->
+                    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div class="stat-icon-wrapper bg-blue-light" style="margin: 0; width: 40px; height: 40px;"><i data-lucide="users" style="width: 20px;"></i></div>
+                            <span class="status-badge badge-success">Active</span>
+                        </div>
+                        <div>
+                            <h3 style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Family Profile Baseline</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Core demographic and structural data for new family onboarding.</p>
+                        </div>
+                        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-tertiary);">
+                            <span>1,248 Submissions</span>
+                            <button style="color: var(--primary); font-weight: 600;">Edit</button>
+                        </div>
+                    </div>
+                    
+                    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div class="stat-icon-wrapper bg-green-light" style="margin: 0; width: 40px; height: 40px;"><i data-lucide="heart-pulse" style="width: 20px;"></i></div>
+                            <span class="status-badge badge-success">Active</span>
+                        </div>
+                        <div>
+                            <h3 style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Annual Health Assessment</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Nutrition, medical history, and current health requirements.</p>
+                        </div>
+                        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-tertiary);">
+                            <span>842 Submissions</span>
+                            <button style="color: var(--primary); font-weight: 600;">Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div class="stat-icon-wrapper bg-orange-light" style="margin: 0; width: 40px; height: 40px;"><i data-lucide="home" style="width: 20px;"></i></div>
+                            <span class="status-badge badge-warning">Draft</span>
+                        </div>
+                        <div>
+                            <h3 style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Housing Conditions</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Evaluate living standards, infrastructure, and utilities.</p>
+                        </div>
+                        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-tertiary);">
+                            <span>0 Submissions</span>
+                            <button style="color: var(--primary); font-weight: 600;">Edit</button>
+                        </div>
+                    </div>
+
+                    <div class="card" style="display: flex; flex-direction: column; gap: 16px;">
+                        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+                            <div class="stat-icon-wrapper bg-purple-light" style="margin: 0; width: 40px; height: 40px;"><i data-lucide="briefcase" style="width: 20px;"></i></div>
+                            <span class="status-badge badge-gray">Archived</span>
+                        </div>
+                        <div>
+                            <h3 style="font-weight: 600; font-size: 1.05rem; margin-bottom: 4px;">Employment Survey 2024</h3>
+                            <p style="font-size: 0.8rem; color: var(--text-secondary); line-height: 1.4;">Historical data on family income sources and employment status.</p>
+                        </div>
+                        <div style="margin-top: auto; padding-top: 16px; border-top: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: var(--text-tertiary);">
+                            <span>1,105 Submissions</span>
+                            <button style="color: var(--primary); font-weight: 600;">View</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="view-settings" class="page-view">
+                <div class="page-header" style="margin-bottom: 24px;">
+                    <div class="page-header-left">
+                        <h1 class="welcome-title">System Settings</h1>
+                        <p class="welcome-subtitle">Configure application defaults, security, and preferences.</p>
+                    </div>
+                    <button class="btn-primary"><i data-lucide="save" style="width: 18px;"></i> Save Changes</button>
+                </div>
+
+                <div class="settings-container">
+                    <div class="settings-sidebar">
+                        <div class="settings-tab active"><i data-lucide="building" style="width: 18px;"></i> Organization Profile</div>
+                        <div class="settings-tab"><i data-lucide="palette" style="width: 18px;"></i> Appearance</div>
+                        <div class="settings-tab"><i data-lucide="shield-check" style="width: 18px;"></i> Security & Privacy</div>
+                        <div class="settings-tab"><i data-lucide="bell" style="width: 18px;"></i> Notifications</div>
+                        <div class="settings-tab"><i data-lucide="database" style="width: 18px;"></i> Data Export</div>
+                    </div>
+                    
+                    <div class="settings-content">
+                        <h2 style="font-size: 1.25rem; font-weight: 600; margin-bottom: 24px;">Organization Profile</h2>
+                        
+                        <div class="grid-2-col" style="gap: 16px;">
+                            <div class="form-group">
+                                <label class="form-label">Organization Name</label>
+                                <input type="text" class="form-input" value="Community Welfare Dept">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">Support Email</label>
+                                <input type="email" class="form-input" value="support@community-portal.org">
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">System Default Language</label>
+                            <select class="form-input">
+                                <option>English (US)</option>
+                                <option>Spanish (ES)</option>
+                                <option>French (FR)</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">Data Collection Region</label>
+                            <input type="text" class="form-input" value="North America - Region 1">
+                            <div class="form-hint">This affects default location mapping for new families.</div>
+                        </div>
+
+                        <hr style="border: none; border-top: 1px solid var(--border-color); margin: 32px 0;">
+                        
+                        <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 16px;">Data Retention Policy</h3>
+                        
+                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 16px; background: var(--bg-color); border-radius: var(--radius-md); border: 1px solid var(--border-color);">
+                            <div>
+                                <div style="font-weight: 600; font-size: 0.9rem;">Auto-archive inactive records</div>
+                                <div style="font-size: 0.8rem; color: var(--text-secondary);">Automatically move families with no activity to archive.</div>
+                            </div>
+                            <!-- Custom Toggle switch built with CSS -->
+                            <div style="width: 44px; height: 24px; background: var(--primary); border-radius: 12px; position: relative; cursor: pointer;">
+                                <div style="width: 20px; height: 20px; background: white; border-radius: 50%; position: absolute; top: 2px; right: 2px; box-shadow: 0 1px 3px rgba(0,0,0,0.2);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Data Collection -->
+            <div id="view-data-collection" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Data Collection</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper"><i data-lucide="clipboard-list"></i></div>
+                    <h3 class="empty-title">Active Collection Drives</h3>
+                    <p class="empty-desc">You don't have any active data collection drives running at the moment. Start a new drive to begin gathering community metrics.</p>
+                    <button class="btn-primary">Start New Drive</button>
+                </div>
+            </div>
+
+            <!-- Submissions -->
+            <div id="view-submissions" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Form Submissions</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--success-light); color:var(--success);"><i data-lucide="inbox"></i></div>
+                    <h3 class="empty-title">Inbox is clear</h3>
+                    <p class="empty-desc">All recent submissions have been reviewed and processed. New data will appear here in real-time as field agents sync their devices.</p>
+                </div>
+            </div>
+
+            <!-- Reports -->
+            <div id="view-reports" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Reports & Analytics</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--purple-light); color:var(--purple);"><i data-lucide="bar-chart-2"></i></div>
+                    <h3 class="empty-title">Custom Reports Generator</h3>
+                    <p class="empty-desc">Select data points, filters, and visualization types to build robust reports for stakeholders and community leaders.</p>
+                    <button class="btn-primary">Generate Report</button>
+                </div>
+            </div>
+
+            <!-- Users & Roles -->
+            <div id="view-users" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Users & Roles</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--orange-light); color:var(--warning);"><i data-lucide="shield"></i></div>
+                    <h3 class="empty-title">Access Management</h3>
+                    <p class="empty-desc">Invite team members, assign field agents, and manage administrative roles ensuring strict data privacy protocols.</p>
+                    <button class="btn-primary">Invite User</button>
+                </div>
+            </div>
+
+            <!-- Locations -->
+            <div id="view-locations" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Location Management</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--teal-light); color:var(--teal);"><i data-lucide="map"></i></div>
+                    <h3 class="empty-title">Geographic Zones</h3>
+                    <p class="empty-desc">Define districts, wards, and neighborhood boundaries to segment family data for localized analytics.</p>
+                    <button class="btn-primary">Add Location Zone</button>
+                </div>
+            </div>
+
+            <!-- Programs -->
+            <div id="view-programs" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Programs & Services</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--primary-light); color:var(--primary);"><i data-lucide="briefcase"></i></div>
+                    <h3 class="empty-title">Social Programs</h3>
+                    <p class="empty-desc">Track assistance programs, subsidies, and community initiatives that families are enrolled in.</p>
+                    <button class="btn-primary">Create Program</button>
+                </div>
+            </div>
+
+            <!-- Categories -->
+            <div id="view-categories" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Data Categories</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper"><i data-lucide="tags"></i></div>
+                    <h3 class="empty-title">Organize Metadata</h3>
+                    <p class="empty-desc">Manage the taxonomies and categories used to tag families, submissions, and community assets.</p>
+                </div>
+            </div>
+
+            <!-- Announcements -->
+            <div id="view-announcements" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Announcements</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--warning-light); color:var(--warning);"><i data-lucide="megaphone"></i></div>
+                    <h3 class="empty-title">Broadcast Messages</h3>
+                    <p class="empty-desc">Send push notifications and alerts to field agents or directly to registered community families.</p>
+                    <button class="btn-primary">New Announcement</button>
+                </div>
+            </div>
+
+            <!-- Notifications -->
+            <div id="view-notifications" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">System Notifications</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper"><i data-lucide="bell-ring"></i></div>
+                    <h3 class="empty-title">All caught up!</h3>
+                    <p class="empty-desc">You have no unread system notifications, alerts, or pending approval requests.</p>
+                </div>
+            </div>
+
+            <!-- Messages -->
+            <div id="view-messages" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Internal Messages</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--success-light); color:var(--success);"><i data-lucide="message-square"></i></div>
+                    <h3 class="empty-title">Team Communication</h3>
+                    <p class="empty-desc">Collaborate with administrators and data reviewers directly within the platform.</p>
+                    <button class="btn-primary">Start Conversation</button>
+                </div>
+            </div>
+
+            <!-- Custom Fields -->
+            <div id="view-custom-fields" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Custom Fields</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--purple-light); color:var(--purple);"><i data-lucide="sliders-horizontal"></i></div>
+                    <h3 class="empty-title">Extend Data Models</h3>
+                    <p class="empty-desc">Create custom database attributes for families and members without requiring developer support.</p>
+                    <button class="btn-primary">Add Custom Field</button>
+                </div>
+            </div>
+
+            <!-- Workflows -->
+            <div id="view-workflows" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Automation Workflows</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--teal-light); color:var(--teal);"><i data-lucide="git-merge"></i></div>
+                    <h3 class="empty-title">Automate Processes</h3>
+                    <p class="empty-desc">Set up triggers and actions. For example, automatically assign a "Review" status when a high-risk family form is submitted.</p>
+                    <button class="btn-primary">Build Workflow</button>
+                </div>
+            </div>
+
+            <!-- Audit Logs -->
+            <div id="view-audit-logs" class="page-view">
+                <div class="page-header"><div class="page-header-left"><h1 class="welcome-title">Audit Logs</h1></div></div>
+                <div class="empty-state card" style="margin-top: 24px;">
+                    <div class="empty-icon-wrapper" style="background:var(--danger-light); color:var(--danger);"><i data-lucide="file-clock"></i></div>
+                    <h3 class="empty-title">Security & Compliance</h3>
+                    <p class="empty-desc">All CRUD operations, logins, and system changes are immutably logged here for compliance and security auditing.</p>
+                    <button class="btn-secondary">Export Latest Logs</button>
+                </div>
+            </div>
+
+        </main>
+    </div>
+</div>
+
+<script>
+    // 1. Initialize Lucide Icons
+    lucide.createIcons();
+
+    // 2. Mobile Sidebar Toggle
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const sidebar = document.getElementById('sidebar');
+
+    mobileMenuBtn.addEventListener('click', () => {
+        sidebar.classList.toggle('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (window.innerWidth <= 768 && !sidebar.contains(e.target) && e.target !== mobileMenuBtn && !mobileMenuBtn.contains(e.target)) {
+            sidebar.classList.remove('open');
+        }
+    });
+
+    // 3. Simple SPA Routing (Vanilla JS)
+    const navItems = document.querySelectorAll('.nav-item');
+    const pageViews = document.querySelectorAll('.page-view');
+
+    navItems.forEach(item => {
+        item.addEventListener('click', (e) => {
+            e.preventDefault();
+            const targetId = item.getAttribute('data-target');
+            if (!targetId) return;
+
+            // Remove active from all nav items
+            navItems.forEach(n => n.classList.remove('active'));
+            // Add active to clicked item
+            item.classList.add('active');
+
+            // Hide all pages
+            pageViews.forEach(page => {
+                page.classList.remove('active');
+                // Force reflow to restart animation on next show
+                void page.offsetWidth;
+            });
+            
+            // Show target page
+            const targetPage = document.getElementById(targetId);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                // On mobile, close sidebar after clicking
+                if (window.innerWidth <= 768) sidebar.classList.remove('open');
+            }
+        });
+    });
+
+    // 4. Animate Numbers on Dashboard
+    function animateValue(obj, start, end, duration) {
+        let startTimestamp = null;
+        const step = (timestamp) => {
+            if (!startTimestamp) startTimestamp = timestamp;
+            const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+            const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+            let currentVal = Math.floor(easeOutQuart * (end - start) + start);
+            
+            obj.innerHTML = currentVal.toLocaleString();
+            
+            if (progress < 1) {
+                window.requestAnimationFrame(step);
+            } else {
+                obj.innerHTML = end.toLocaleString();
+            }
+        };
+        window.requestAnimationFrame(step);
+    }
+
+    // Use Intersection Observer so counters fire when visible
+    const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+    const observer = new IntersectionObserver((entries, observer) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                if (entry.target.classList.contains('counter') && !entry.target.classList.contains('animated')) {
+                    const target = parseInt(entry.target.getAttribute('data-target'));
+                    animateValue(entry.target, 0, target, 2000);
+                    entry.target.classList.add('animated');
+                }
+            }
+        });
+    }, observerOptions);
+
+    document.querySelectorAll('.counter').forEach(el => observer.observe(el));
+
+    // 5. Settings Tabs Interactivity (Bonus feature for Settings page)
+    const settingsTabs = document.querySelectorAll('.settings-tab');
+    settingsTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            settingsTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            // In a full implementation, this would switch settings panels.
+        });
+    });
+
+</script>
+
+</body>
+</html>
